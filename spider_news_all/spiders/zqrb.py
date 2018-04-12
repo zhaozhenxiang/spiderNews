@@ -17,7 +17,7 @@ class ZqrbSpider(scrapy.Spider):
     handle_httpstatus_list = [404]
 
     FLAG_INTERRUPT = False
-    SELECT_NEWS_BY_TITLE_AND_URL = "SELECT * FROM news_all WHERE title='%s' AND url='%s'"
+    SELECT_NEWS_BY_TITLE_AND_URL = "SELECT count(1) FROM news_all WHERE title='%s' AND url='%s'"
 
     lock = threading.RLock()
     conn=MySQLdb.connect(user='root', passwd='', db='news', host='127.0.0.1')
@@ -35,7 +35,7 @@ class ZqrbSpider(scrapy.Spider):
         if self.FLAG_INTERRUPT:
             self.lock.acquire()
             rows = self.cursor.execute(self.SELECT_NEWS_BY_TITLE_AND_URL % (title, url))
-            if rows > 0:
+            if 0 < self.cursor.fetchone()[0]:
                 log.msg("News saved all finished.", level=log.INFO)
                 return False
             else:

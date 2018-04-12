@@ -26,8 +26,8 @@ class SpiderNewsAllPipeline(object):
     def insert(self, title, day, _type, url, keywords, article, site):
         def is_news_not_saved(title, url):         
             self.lock.acquire()
-            rows = self.cursor.execute(self.SELECT_NEWS_BY_TITLE_AND_URL % (url))            
-            if rows > 0:
+            self.cursor.execute(self.SELECT_NEWS_BY_TITLE_AND_URL % (url))            
+            if 0 < self.cursor.fetchone()[0]:
                 log.msg("News saved all finished.", level=log.INFO)
                 return False
             else:
@@ -35,8 +35,8 @@ class SpiderNewsAllPipeline(object):
             self.lock.release()
             
 
-        if False == is_news_not_saved(title, url):
-            return None                
+        # if False == is_news_not_saved(title, url):
+        #    return None                
         self.lock.acquire()
             
         news = (title, day, _type, url, keywords, article, site)
