@@ -13,7 +13,7 @@ class CnblogsSpider(scrapy.Spider):
     name = "cnblogs"
     allowed_domains = ["cnblogs.com"]
     start_urls = (
-        'http://www.cnblogs.com/news',
+        'http://news.cnblogs.com/n/page/1',
     )
     handle_httpstatus_list = [404]
 
@@ -28,10 +28,10 @@ class CnblogsSpider(scrapy.Spider):
     cursor.execute('SET CHARACTER SET utf8;')
     cursor.execute('SET character_set_connection=utf8;')
 
-    URL_TEMPLATE = 'http://news.cnblogs.com/n/%s'
+    URL_TEMPLATE = 'http://news.cnblogs.com/n/page/%s'
     # URL_TEMPLATE = 'http://www.cs.com.cn/xwzx/cj/index_%s.html'
     # URL_TEMPLATE = 'http://www.cs.com.cn/ssgs/gsxw/index_%s.html'
-    index = 0
+    index = 1
 
     def is_news_not_saved(self, title, url):
         if self.FLAG_INTERRUPT:
@@ -92,34 +92,35 @@ class CnblogsSpider(scrapy.Spider):
         self.index = self.index + 1
         log.msg("Start to parse page " + response.url, level=log.INFO)
         url = response.url
-        url_base = url.split('/n')[0]
+        url_base = url.split('/n/page')[0]
         _type = self.get_type_from_url(url)
         items = []
         try:
             response = response.body
+            # log.msg(response)
             soup = BeautifulSoup(response)
-            lists = soup.find(class_='column-box')
-            links = lists.find_all('li')
+
+            lists = soup.find_all(class_='content')
+            #log.msg('links' + type(links), log.ERROR)
+            
         except:
-            items.append(self.make_requests_from_url(url))
+            # items.append(self.make_requests_from_url(url))
             log.msg("Page " + url + " parse ERROR, try again !", level=log.ERROR)
+            # log.msg('http body is' + response)
+            # log.msg(soup, log.ERROR)
             return items
         need_parse_next_page = True
-        if len(links) > 0:
-            for i in range(0, len(links)):
-                try:
-                    if links[i]['class'] == ['nobg']:
-                        continue
-                except:
-                    log.msg("Start to parse page ", level=log.INFO)
-                url_news = url_base + links[i].a['href'][1:]
-                day = links[i].span.text.strip()
-                title = links[i].a.text.strip()
+        if len(lists) > 0:
+            for i in range(0, len(lists)):
+                url_news = url_base + lists[i].find(class_='news_entry').a['href']
+                title = lists[i].find(class_='news_entry').a.text.strip()
+                day = lists[i].find('span',{'class':'gray'}).text
+
                 need_parse_next_page = self.is_news_not_saved(title, url_news)
                 if not need_parse_next_page:
                     break
                 items.append(self.make_requests_from_url(url_news).replace(callback=self.parse_news, meta={'_type': _type, 'day': day, 'title': title}))
-            if (self.index != 10):
+            if self.index != 10:
                 page_next = self.URL_TEMPLATE % (self.index)
                 if need_parse_next_page:
                     items.append(self.make_requests_from_url(page_next))
