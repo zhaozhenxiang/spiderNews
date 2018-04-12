@@ -35,8 +35,8 @@ class SpiderNewsAllPipeline(object):
             self.lock.release()
             
 
-        # if False == is_news_not_saved(title, url):
-        #    return None                
+        if False == is_news_not_saved(title, url):
+           return None                
         self.lock.acquire()
             
         news = (title, day, _type, url, keywords, article, site)
