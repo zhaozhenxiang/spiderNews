@@ -105,7 +105,7 @@ class JjgcbSpider(scrapy.Spider):
             soup = BeautifulSoup(response)
             links = soup.find_all(class_=' li_blue font16 mtcs')
         except:
-            items.append(self.make_requests_from_url(url))
+            # items.append(self.make_requests_from_url(url))
             log.msg("Page " + url + " parse ERROR, try again !", level=log.ERROR)
             return items
         need_parse_next_page = True

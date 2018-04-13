@@ -11,6 +11,8 @@ from spider_news_all.items import SpiderNewsAllItem
 
 class CnblogsSpider(scrapy.Spider):
     name = "cnblogs"
+    #自定的请求时间间隔
+    custom_settings = {'DOWNLOAD_DELAY': 0.5, 'CONCURRENT_REQUESTS_PER_IP': 4 }
     allowed_domains = ["cnblogs.com"]
     start_urls = (
         'http://news.cnblogs.com/n/page/1',

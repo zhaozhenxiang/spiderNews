@@ -12,7 +12,7 @@ CREATE TABLE `news_all` (
   `keywords` varchar(255) DEFAULT NULL,
   `type` varchar(255) DEFAULT NULL,
   `url` varchar(255) NOT NULL,
-  `article` text,
+  `article` longtext,
   `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `urlUnique` (`url`) USING HASH,
